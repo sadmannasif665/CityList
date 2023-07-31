@@ -1,37 +1,79 @@
 package com.example.citylist;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 
+/**
+ * Main activity
+ */
 public class MainActivity extends AppCompatActivity {
 
     // Declare the variables so that you will be able to reference it later.
-    ListView cityList;
-    ArrayAdapter<City> cityAdapter;
-    ArrayList<City> cityDataList;
+    /**
+     * List view for showing cities
+     */
+    ListView listViewCity;
+    /**
+     * editText for adding new city
+     */
+    EditText editTextNewName;
+    /**
+     * container of editText and button
+     */
+    LinearLayout llNameField;
+    /**
+     * adapter for listview
+     */
+    ArrayAdapter<String> cityAdapter;
+    /**
+     * contains all city names
+     */
+    ArrayList<String> dataList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        cityList = findViewById(R.id.city_list);
+        llNameField = findViewById(R.id.field_nameEntry);
+        editTextNewName = findViewById(R.id.editText_name);
+        listViewCity = findViewById(R.id.city_list);
 
-        String cities[] = {"Edmonton", "Vancouver", "Toronto", "Calgary", "Hamilton", "Waterloo" };
-        String provinces[] = {"AB", "BC", "ON", "AB", "ON", "ON"};
+        dataList = new ArrayList<>();
+        cityAdapter = new ArrayAdapter<>(this, R.layout.content, dataList);
+        listViewCity.setAdapter(cityAdapter);
 
-        cityDataList = new ArrayList<>();
+        listViewCity.setOnItemClickListener((parent, view, position, id) -> {
+            String city = cityAdapter.getItem(position);
+            Intent intent = new Intent(this,ShowActivity.class);
+            intent.putExtra("city",city);
+            startActivity(intent);
+        });
 
-        for(int i=0; i<cities.length; i++){
-            cityDataList.add(new City(cities[i], provinces[i]));
-        }
+        final Button addButton = findViewById(R.id.button_add);
+        addButton.setOnClickListener(v -> llNameField.setVisibility(View.VISIBLE));
 
-        cityAdapter = new CustomList(this, cityDataList);
+        final Button confirmButton = findViewById(R.id.button_confirm);
+        confirmButton.setOnClickListener(v -> {
+            String cityName = editTextNewName.getText().toString();
+            cityAdapter.add(cityName);
+            editTextNewName.getText().clear();
+            llNameField.setVisibility(View.INVISIBLE);
+        });
 
-        cityList.setAdapter(cityAdapter);
+        final Button deleteButton = findViewById(R.id.button_clear);
+        deleteButton.setOnClickListener(v -> cityAdapter.clear());
+
     }
+
 }
